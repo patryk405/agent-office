@@ -1,3 +1,4 @@
+import { jukeboxMedia, knownMediaHost } from './jukebox-media.js';
 // The lounge jukebox: the tunes it has and what it's playing, shared by the server (which keeps one
 // per floor) and the browser (which synthesizes the tunes, see client/sound/music.ts).
 
@@ -37,6 +38,9 @@ export const tuneById = (id: string): JukeboxTune | undefined => JUKEBOX_TUNES.f
 /** What's on, for the hint bar and the jukebox's own display: a tune's title, or where the stream comes from. */
 export function trackTitle(s: Pick<JukeboxState, 'track' | 'url'>): string {
   if (s.track !== STREAM) return tuneById(s.track)?.title ?? 'A tune';
+  const media = jukeboxMedia(s.url ?? '');
+  if (media?.kind === 'youtube') return `YouTube · ${media.id ?? 'playlist'}`;
+  if (media?.kind === 'soundcloud') return `SoundCloud · ${new URL(media.url).pathname.slice(1)}`;
   try {
     const u = new URL(s.url ?? '');
     const file = decodeURIComponent(u.pathname.split('/').filter(Boolean).pop() ?? '');
@@ -57,5 +61,9 @@ export function checkStreamUrl(raw: unknown): { url: string } | { error: string 
     return { error: "That isn't a web link. Paste an address that starts with https://" };
   }
   if (u.protocol !== 'https:' && u.protocol !== 'http:') return { error: 'Only http and https links can play on the jukebox' };
+  if (u.username || u.password) return { error: 'Links must not contain login credentials' };
+  const media = jukeboxMedia(u.href);
+  if (media) return { url: media.url };
+  if (knownMediaHost(u)) return { error: 'Paste a YouTube video/playlist or a full SoundCloud track/playlist link' };
   return { url: u.href };
 }
