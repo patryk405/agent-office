@@ -1,3 +1,4 @@
+import { voiceProfile } from '../../../shared/voice-profiles.js';
 import { configured, localSpeech } from '../../localvoice/engine.js';
 import { workerReply } from '../../localvoice/reply.js';
 import type { Route } from '../router.js';
@@ -19,13 +20,13 @@ export const localVoiceRoute: Route = {
         if (typeof body.audio !== 'string' || body.audio.length > 1_100_000) return send(res, 400, { error: 'Nagranie jest za długie.' });
         return send(res, 200, await localSpeech('transcribe', { audio: body.audio }));
       }
-      if (op === 'speak') {
-        if (typeof body.text !== 'string' || !body.text.trim() || body.text.length > 1800) return send(res, 400, { error: 'Nieprawidłowy tekst.' });
-        return send(res, 200, await localSpeech('speak', { text: body.text }));
-      }
       const floor = ctx.floors.get(body.floor);
       const worker = floor?.workers.get(body.workerId);
       if (!floor || !worker || worker.kind !== 'agent' || worker.provider !== 'codex') return send(res, 404, { error: 'Wybierz aktywnego robota Codex.' });
+      if (op === 'speak') {
+        if (typeof body.text !== 'string' || !body.text.trim() || body.text.length > 1800) return send(res, 400, { error: 'Nieprawidłowy tekst.' });
+        return send(res, 200, await localSpeech('speak', { text: body.text, profile: voiceProfile(worker.name, worker.id) }));
+      }
       if (op === 'reply') {
         const after = Number(body.after);
         if (!Number.isFinite(after) || after < Date.now() - 86400_000) return send(res, 400, { error: 'Nieprawidłowy czas.' });

@@ -67,7 +67,9 @@ test('idle robots leave transformed chairs, walk, stop nearby, and restore their
     for (let i = 0; i < 200; i++) roaming.tick(0.1, true);
     assert.ok(root.position.distanceTo(start) > 0.5);
     const stopped = root.position.clone(); roaming.tick(1, true, info.id); assert.deepEqual(root.position, stopped); assert.equal(model.walking, false);
-    info.status = 'working'; roaming.tick(0.1, true); assert.equal(root.parent, chair); assert.deepEqual(root.position, new Vector3());
+    info.status = 'working'; roaming.tick(0.1, true, info.id, new Set([info.id]));
+    assert.equal(root.parent, scene); assert.deepEqual(root.position, stopped);
+    roaming.tick(0.1, true); assert.equal(root.parent, chair); assert.deepEqual(root.position, new Vector3());
   } finally { roaming.reset(); store.workers.delete(info.id); }
 });
 
@@ -77,4 +79,10 @@ test('proximity hearing ignores overhead ceilings but stops at thin walls', () =
   assert.equal(voiceOccluded(a, b, [{ minX: -18, maxX: 18, minZ: -13, maxZ: 13, bottom: 6.8, top: 7.1 }]), false);
   assert.equal(voiceOccluded(a, b, [{ minX: -1, maxX: 1, minZ: 0.91, maxZ: 0.93, top: 3 }]), true);
   assert.equal(voiceOccluded(a, b, [{ minX: -1, maxX: 1, minZ: 0.9, maxZ: 1, top: 0.6 }]), false);
+});
+
+import { voiceProfile } from '../src/shared/voice-profiles.js';
+test('the six named workers have distinct stable Polish voice profiles', () => {
+  assert.equal(new Set(['Pixel', 'Vault', 'Scout', 'Calm', 'Launch', 'Echo'].map((name) => voiceProfile(name, 'id'))).size, 6);
+  assert.equal(voiceProfile('Other', 'stable'), voiceProfile('Other', 'stable'));
 });

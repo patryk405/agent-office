@@ -1,0 +1,11 @@
+.tv-world-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.tv-world-surface { width: 1280px; height: 720px; pointer-events: none !important; background: #fff; }
+.tv-world-surface iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
+.tv-browser { width: min(1200px, 95vw); max-width: 95vw; height: 90vh; display: flex; flex-direction: column; }
+.tv-browser header { flex-shrink: 0; }
+.tv-address, .tv-tools { display: flex; gap: 8px; padding: 8px 16px; flex-wrap: wrap; }
+.tv-address input { flex: 1; min-width: 180px; padding: 9px; border: 2px solid #45455c; border-radius: 8px; }
+.tv-viewport { flex: 1; min-height: 0; display: flex; justify-content: center; background: #252535; margin: 0 16px; overflow: hidden; }
+.tv-viewport iframe { border: 0; height: 100%; width: 100%; background: white; }
+.tv-viewport.phone iframe { width: min(390px, 100%); }
+.tv-note { font-size: 12px; margin: 10px 16px; }

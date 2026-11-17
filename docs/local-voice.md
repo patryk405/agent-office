@@ -56,3 +56,8 @@ Audio permission and playback require a secure context (localhost is supported).
 A microphone and speakers/headphones must be available to the browser. CPU load
 and answer latency depend on the machine. Test real speech with your microphone;
 a synthetic audio roundtrip cannot verify room noise or hardware permissions.
+
+## Conversations and voices
+Spoken prompts keep a roaming worker at its current position until its answer is spoken (or the 15-minute pending reply expires). Ordinary terminal tasks still return the worker to its desk. Turning the microphone off restores normal seating. This is a local animation choice, not a separate AI model: answers still use the existing Codex session.
+
+Pixel uses Gosia; Vault uses Bass; Scout uses Darkman; Calm uses MLS 6892; Launch uses MC Speech. Echo uses a brighter Gosia variant with adjusted pitch and cadence. Download all five models with the updated setup script. Speech recognition and synthesis remain local. Profiles are selected server-side from the worker name, with a stable fallback for other workers.
