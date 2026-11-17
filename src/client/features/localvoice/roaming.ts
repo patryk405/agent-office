@@ -16,16 +16,16 @@ export class Roaming {
     for (const w of this.walks.values()) this.sit(w);
     this.walks.clear();
   }
-  tick(dt: number, active: boolean, near?: string) {
+  tick(dt: number, active: boolean, near?: string, conversations: ReadonlySet<string> = new Set()) {
     const { ctx, parts } = this;
     if (!active || !ctx.inOffice() || ctx.upTop() || ctx.trip() || ctx.reduceMotion.matches) { this.reset(); return; }
     for (const [id, w] of this.walks) {
       const info = store.workers.get(id), view = parts.views.workerViews.get(id);
       if (!info || view?.model !== w.model || w.model.root.parent !== ctx.scene) { this.walks.delete(id); continue; }
-      if (!['idle', 'done'].includes(info.status) || info.meeting) {
+      if ((!['idle', 'done'].includes(info.status) && !conversations.has(id)) || info.meeting) {
         this.sit(w); this.walks.delete(id); continue;
       }
-      if (id === near || w.model.root.position.distanceTo(ctx.player.pos) < 2.4) { w.model.walking = false; continue; }
+      if (conversations.has(id) || id === near || w.model.root.position.distanceTo(ctx.player.pos) < 2.4) { w.model.walking = false; continue; }
       if ((w.wait -= dt) > 0) { w.model.walking = false; continue; }
       if (w.next >= w.path.length) { w.path.reverse(); w.next = 0; w.wait = 4 + Math.random() * 8; w.model.walking = false; continue; }
       const [x, z] = w.path[w.next], pos = w.model.root.position;

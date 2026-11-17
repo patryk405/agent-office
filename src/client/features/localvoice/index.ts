@@ -45,7 +45,7 @@ export function installLocalVoice(ctx: Ctx, parts: Pick<Parts, 'views'>) {
     if (!enabled || speaking || !audio || !parts.views.workerViews.has(id)) return;
     const generation = epoch; speaking = true; speakingId = id; resetRecording();
     try {
-      const value = await api('speak', { text: text.slice(0, 1800) }, request.signal);
+      const value = await api('speak', { text: text.slice(0, 1800), workerId: id, floor: store.floor }, request.signal);
       if (generation !== epoch || !audio) return;
       const bytes = Uint8Array.from(atob(value.audio), (c) => c.charCodeAt(0));
       const buffer = await audio.decodeAudioData(bytes.buffer);
@@ -67,7 +67,9 @@ export function installLocalVoice(ctx: Ctx, parts: Pick<Parts, 'views'>) {
       // Spoken stop always works locally, without sending a prompt.
       if (/^(wyłącz mikrofon|wyłącz rozmowę|koniec rozmowy)[.!?]?$/i.test(text.trim())) { stop(); return; }
       const after = Date.now();
-      await api('prompt', { floor, workerId: id, text }, request.signal);
+      pending.set(id, { floor, after, expires: Date.now() + 15 * 60_000 });
+      try { await api('prompt', { floor, workerId: id, text }, request.signal); }
+      catch (error) { pending.delete(id); throw error; }
       if (generation !== epoch) return;
       pending.set(id, { floor, after, expires: Date.now() + 15 * 60_000 });
       status.textContent = 'Wysłano. Czekam na odpowiedź.';
@@ -126,7 +128,7 @@ export function installLocalVoice(ctx: Ctx, parts: Pick<Parts, 'views'>) {
       if (!blocked) candidates.push({ id, distance, facing });
     }
     target = conversationalTarget(candidates, target);
-    roaming.tick(dt, true, target);
+    roaming.tick(dt, true, target, new Set([...pending.keys(), ...(speakingId ? [speakingId] : [])]));
     if (!busy && !recording && !speaking) {
       const w = target && store.workers.get(target);
       status.textContent = w ? `${w.name} · ${['idle', 'done'].includes(w.status) ? 'możesz mówić' : 'pracuje / czeka na terminal'}` : 'Mikrofon aktywny · podejdź i spójrz na robota';

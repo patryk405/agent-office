@@ -433,3 +433,6 @@ normal account usage. See [setup and limitations](docs/local-voice.md).
 Paste a YouTube video/playlist or SoundCloud track/playlist link in the lounge
 jukebox. Official visible players support playback and local volume; direct audio
 and built-in tunes still work. See [supported links and playback behavior](docs/jukebox-links.md).
+
+### Office TV browser and Polish conversations
+Office TV now opens a web preview with an address bar, refresh, and phone/desktop sizes; default SOBR preview: port 8081. See [Office TV](docs/office-tv.md). Robots stay nearby during spoken replies and the six SOBR roles have distinct local voice profiles; rerun the model downloader when upgrading. See [local voice](docs/local-voice.md).
