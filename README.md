@@ -420,3 +420,10 @@ Every change to the app that lands on `main` is published as a GitHub release by
 ## License
 
 [MIT](LICENSE)
+
+## Local Polish voice mode
+
+An optional local speech mode lets you approach a Codex worker, dictate without
+pressing a key, and hear short Polish replies. Idle workers stroll around the
+office. Speech recognition and synthesis run on your computer; Codex retains its
+normal account usage. See [setup and limitations](docs/local-voice.md).
