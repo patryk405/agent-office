@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { conversationalTarget, wav16k } from '../src/shared/local-voice.js';
+import { conversationalTarget, wav16k, voiceOccluded } from '../src/shared/local-voice.js';
 import { finalReply, spokenText } from '../src/server/localvoice/reply.js';
 
 test('voice only addresses a nearby facing worker, with hysteresis', () => {
@@ -69,4 +69,12 @@ test('idle robots leave transformed chairs, walk, stop nearby, and restore their
     const stopped = root.position.clone(); roaming.tick(1, true, info.id); assert.deepEqual(root.position, stopped); assert.equal(model.walking, false);
     info.status = 'working'; roaming.tick(0.1, true); assert.equal(root.parent, chair); assert.deepEqual(root.position, new Vector3());
   } finally { roaming.reset(); store.workers.delete(info.id); }
+});
+
+
+test('proximity hearing ignores overhead ceilings but stops at thin walls', () => {
+  const a = { x: 0, y: 1.4, z: 0 }, b = { x: 0, y: 0.8, z: 2 };
+  assert.equal(voiceOccluded(a, b, [{ minX: -18, maxX: 18, minZ: -13, maxZ: 13, bottom: 6.8, top: 7.1 }]), false);
+  assert.equal(voiceOccluded(a, b, [{ minX: -1, maxX: 1, minZ: 0.91, maxZ: 0.93, top: 3 }]), true);
+  assert.equal(voiceOccluded(a, b, [{ minX: -1, maxX: 1, minZ: 0.9, maxZ: 1, top: 0.6 }]), false);
 });

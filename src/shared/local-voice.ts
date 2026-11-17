@@ -19,3 +19,19 @@ export function wav16k(samples: Float32Array, rate: number): Uint8Array {
   }
   return out;
 }
+
+/** Head-height line of sight: ceilings above the conversation are not walls. */
+export function voiceOccluded(from: { x: number; y: number; z: number }, to: { x: number; y: number; z: number }, colliders: { minX: number; maxX: number; minZ: number; maxZ: number; top: number; bottom?: number }[]): boolean {
+  return colliders.some((c) => {
+    if (c.top <= 1.8) return false;
+    let enter = 0, leave = 1;
+    for (const [a, b, low, high] of [[from.x, to.x, c.minX, c.maxX], [from.y, to.y, c.bottom ?? 0, c.top], [from.z, to.z, c.minZ, c.maxZ]]) {
+      const delta = b - a;
+      if (Math.abs(delta) < 1e-8) { if (a < low || a > high) return false; continue; }
+      const t1 = (low - a) / delta, t2 = (high - a) / delta;
+      enter = Math.max(enter, Math.min(t1, t2)); leave = Math.min(leave, Math.max(t1, t2));
+      if (enter > leave) return false;
+    }
+    return leave > 0.001 && enter < 0.999;
+  });
+}

@@ -3,7 +3,7 @@ import { Vector3 } from 'three';
 import type { Ctx } from '../../core/context';
 import type { Parts } from '../../core/parts';
 import { store } from '../../state';
-import { conversationalTarget, wav16k } from '../../../shared/local-voice';
+import { conversationalTarget, wav16k, voiceOccluded } from '../../../shared/local-voice';
 import { Roaming } from './roaming';
 
 async function api(op: string, data: object = {}, signal?: AbortSignal) {
@@ -122,10 +122,7 @@ export function installLocalVoice(ctx: Ctx, parts: Pick<Parts, 'views'>) {
       view.model.root.getWorldPosition(point); point.y += 0.8; relative.copy(point).sub(ctx.camera.position);
       const distance = relative.length(); const facing = relative.normalize().dot(direction);
       // Walls block a conversation; furniture below head height does not.
-      const blocked = ctx.world().colliders.some((c) => c.top > 1.8 && Array.from({ length: 12 }, (_, i) => (i + 1) / 13).some((t) => {
-        const x = ctx.camera.position.x + (point.x - ctx.camera.position.x) * t, z = ctx.camera.position.z + (point.z - ctx.camera.position.z) * t;
-        return x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ;
-      }));
+      const blocked = voiceOccluded(ctx.camera.position, point, ctx.world().colliders);
       if (!blocked) candidates.push({ id, distance, facing });
     }
     target = conversationalTarget(candidates, target);
