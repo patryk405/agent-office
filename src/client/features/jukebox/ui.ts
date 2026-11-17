@@ -1,3 +1,4 @@
+import { soundcloudShort } from '../../../shared/jukebox-media';
 import './ui.css';
 import { JUKEBOX_TUNES, STREAM, checkStreamUrl, trackTitle, tuneById } from '../../../shared/jukebox';
 import type { Net } from '../../net';
@@ -9,7 +10,7 @@ export function openJukebox(net: Net, openVolume: () => void) {
   const close = h('button.btn.close', { 'aria-label': 'Close' }, '✕');
   const now = h('div.jb-now');
   const list = h('ul.svc-list');
-  const url = h('input', { type: 'text', placeholder: 'https://… internet radio, or a link to an .mp3', 'aria-label': 'Stream or audio file link', spellcheck: 'false', autocomplete: 'off' }) as HTMLInputElement;
+  const url = h('input', { type: 'text', placeholder: 'YouTube, SoundCloud, radio lub plik .mp3', 'aria-label': 'YouTube, SoundCloud or audio link', spellcheck: 'false', autocomplete: 'off' }) as HTMLInputElement;
   const playUrl = h('button.btn.primary', { type: 'button' }, '📻 Play');
   const volume = h('button.btn', { type: 'button' }, '🔈 Your volume');
   const el = h(
@@ -22,9 +23,9 @@ export function openJukebox(net: Net, openVolume: () => void) {
       now,
       h('label', { style: 'margin-top:16px' }, 'Put on a tune'),
       list,
-      h('label', { style: 'margin-top:16px' }, 'Or play a stream'),
+      h('label', { style: 'margin-top:16px' }, 'Lub wklej link'),
       h('div.webhook', {}, url, playUrl),
-      h('p.setting-note', {}, 'Internet radio or an audio file. It plays from the jukebox, for everyone on this floor.'),
+      h('p.setting-note', {}, 'YouTube, SoundCloud, radio lub plik audio. Serwisy otwierają własny odtwarzacz i mogą wymagać kliknięcia Play.'),
     ),
     h('footer', {}, h('span.grow', {}, 'Everyone on this floor hears the same song, louder the closer they are to the lounge.'), volume),
   );
@@ -69,8 +70,24 @@ export function openJukebox(net: Net, openVolume: () => void) {
     );
   };
 
-  const play = () => {
-    const u = checkStreamUrl(url.value);
+  let resolving = false;
+  const play = async () => {
+    if (resolving) return;
+    let raw = url.value.trim();
+    try {
+      const parsed = new URL(raw);
+      if (soundcloudShort(parsed)) {
+        resolving = true; (playUrl as HTMLButtonElement).disabled = true;
+        const response = await fetch('/api/jukebox/resolve', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url: raw }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error);
+        raw = result.url;
+      }
+    } catch (error) {
+      if (resolving) { toast(error instanceof Error ? error.message : 'Nie udało się rozwinąć linku.', 'warn'); return; }
+    } finally { resolving = false; (playUrl as HTMLButtonElement).disabled = false; }
+    if (!el.isConnected) return;
+    const u = checkStreamUrl(raw);
     if ('error' in u) {
       toast(u.error, 'warn');
       return url.focus();

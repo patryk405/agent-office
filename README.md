@@ -427,3 +427,9 @@ An optional local speech mode lets you approach a Codex worker, dictate without
 pressing a key, and hear short Polish replies. Idle workers stroll around the
 office. Speech recognition and synthesis run on your computer; Codex retains its
 normal account usage. See [setup and limitations](docs/local-voice.md).
+
+## YouTube and SoundCloud jukebox
+
+Paste a YouTube video/playlist or SoundCloud track/playlist link in the lounge
+jukebox. Official visible players support playback and local volume; direct audio
+and built-in tunes still work. See [supported links and playback behavior](docs/jukebox-links.md).

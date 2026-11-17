@@ -1,3 +1,4 @@
+import { jukeboxMediaRoute } from './jukebox-media.js';
 // Every HTTP route the office answers, in the order they're tried: a new route goes where it has to
 // come in that order (see http/router.ts). The public ones are tried first, then the sign-in check,
 // then the rest; the last one answers every path left with the client bundle, or a 404.
@@ -28,6 +29,7 @@ export const routes: readonly Route[] = [
   pageRoutes.favicon,
   // Signed in.
   localVoiceRoute,
+  jukeboxMediaRoute,
   authRoutes.whoami,
   agentRoutes.models,
   fileRoutes.image,
