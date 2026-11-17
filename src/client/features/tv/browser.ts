@@ -25,7 +25,7 @@ export function tvBrowser(ctx: Ctx) {
   const scene = new THREE.Scene(), object = new CSS3DObject(surface);
   scene.add(object);
   const renderer = new CSS3DRenderer(); renderer.domElement.className = 'tv-world-layer';
-  document.body.append(renderer.domElement);
+  ctx.canvas.after(renderer.domElement);
   let modal: Modal | undefined;
   const center = new THREE.Vector3(), end = new THREE.Vector3(), normal = new THREE.Vector3(), direction = new THREE.Vector3();
   const scale = new THREE.Vector3();

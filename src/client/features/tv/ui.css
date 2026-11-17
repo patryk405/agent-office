@@ -1,4 +1,4 @@
-.tv-world-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+.tv-world-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
 .tv-world-surface { width: 1280px; height: 720px; pointer-events: none !important; background: #fff; }
 .tv-world-surface iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
 .tv-browser { width: min(1200px, 95vw); max-width: 95vw; height: 90vh; display: flex; flex-direction: column; }
