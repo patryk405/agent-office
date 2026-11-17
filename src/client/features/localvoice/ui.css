@@ -1,0 +1,6 @@
+.local-voice-panel { position:fixed; bottom:64px; left:16px; z-index:25; width:min(340px,calc(100vw - 48px)); padding:14px 16px; border:2px solid #353449; border-radius:16px; background:#fffaf1; color:#282a39; box-shadow:0 4px 0 #353449; font:14px/1.45 system-ui,sans-serif; }
+.local-voice-panel button { cursor:pointer; width:100%; padding:10px; border:2px solid #353449; border-radius:10px; background:#e5f1e7; color:#173c32; font:700 14px system-ui,sans-serif; }
+.local-voice-panel button[aria-pressed=true] { background:#a8ddc4; }
+.local-voice-status { margin-top:8px; font-weight:650; }
+.local-voice-caption { margin-top:6px; max-height:110px; overflow:auto; font-size:13px; }
+.local-voice-note { display:block; margin-top:8px; font-size:11px; color:#565967; }
